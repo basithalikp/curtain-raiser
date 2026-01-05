@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curtain Raiser - Grand Inauguration</title>
+    <style>
+        /* ============================================
+           RESET AND BASE STYLES
+           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* ============================================
+           THEATER BACKGROUND AND STAGE
+           ============================================ */
+        .stage-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #0f0f1e 50%, #000 100%);
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Spotlight effect overlay */
+        .stage-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(ellipse at center top, rgba(255, 215, 0, 0.15) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* ============================================
+           CURTAIN STYLES
+           ============================================ */
+        .curtain-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .curtain {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 50%;
+            background: linear-gradient(
+                to bottom,
+                #c41e3a 0%,
+                #a01833 20%,
+                #8b1428 40%,
+                #7a0f1f 60%,
+                #690d1a 80%,
+                #5a0a15 100%
+            );
+            overflow: hidden;
+        }
+
+        /* Velvet texture for curtains using multiple box-shadows and gradients */
+        .curtain::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    90deg,
+                    rgba(0, 0, 0, 0.1) 0px,
+                    transparent 2px,
+                    transparent 4px,
+                    rgba(0, 0, 0, 0.1) 6px
+                ),
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(255, 255, 255, 0.03) 0px,
+                    transparent 1px,
+                    transparent 2px,
+                    rgba(255, 255, 255, 0.03) 3px
+                ),
+                linear-gradient(
+                    135deg,
+                    rgba(0, 0, 0, 0.2) 0%,
+                    transparent 50%,
+                    rgba(255, 255, 255, 0.1) 100%
+                );
+            pointer-events: none;
+        }
+
+        /* Fold effect with semi-transparent overlays */
+        .curtain::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 40px;
+            background: linear-gradient(
+                to right,
+                rgba(0, 0, 0, 0.4),
+                transparent
+            );
+            pointer-events: none;
+        }
+
+        /* Left curtain positioning */
+        .curtain-left {
+            left: 0;
+        }
+
+        .curtain-left::after {
+            left: 100%;
+            background: linear-gradient(
+                to right,
+                rgba(0, 0, 0, 0.4),
+                transparent
+            );
+        }
+
+        /* Right curtain positioning */
+        .curtain-right {
+            right: 0;
+        }
+
+        .curtain-right::after {
+            right: 100%;
+            background: linear-gradient(
+                to left,
+                rgba(0, 0, 0, 0.4),
+                transparent
+            );
+        }
+
+        /* Gold trim on curtains */
+        .curtain-trim {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 30px;
+            background: linear-gradient(
+                to bottom,
+                #d4af37 0%,
+                #c5a028 50%,
+                #a0821c 100%
+            );
+            box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.3),
+                        0 4px 8px rgba(0, 0, 0, 0.5);
+            z-index: 5;
+        }
+
+        .curtain-bottom-trim {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 20px;
+            background: linear-gradient(
+                to top,
+                #d4af37 0%,
+                #c5a028 50%,
+                #a0821c 100%
+            );
+            box-shadow: inset 0 -2px 5px rgba(255, 255, 255, 0.3),
+                        0 -4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        /* ============================================
+           CONTENT AND TEXT
+           ============================================ */
+        .content {
+            position: relative;
+            z-index: 15;
+            text-align: center;
+            color: white;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+            pointer-events: none;
+            opacity: 1;
+            transition: opacity 0.6s ease-out;
+        }
+
+        .content.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .title {
+            font-size: clamp(2rem, 5vw, 4.5rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffc700 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titleGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% {
+                filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.3));
+            }
+            50% {
+                filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.6));
+            }
+        }
+
+        .subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+            font-weight: 300;
+            margin-bottom: 2.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            letter-spacing: 1px;
+        }
+
+        /* ============================================
+           BUTTON STYLES
+           ============================================ */
+        .launch-btn {
+            position: relative;
+            padding: 1rem 2.5rem;
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffc700 100%);
+            color: #000;
+            border: 3px solid #d4af37;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 0 20px rgba(255, 215, 0, 0.4),
+                0 8px 24px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            pointer-events: all;
+            z-index: 20;
+        }
+
+        .launch-btn:hover:not(:active) {
+            transform: scale(1.08) translateY(-3px);
+            box-shadow: 
+                0 0 30px rgba(255, 215, 0, 0.7),
+                0 12px 30px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            background: linear-gradient(135deg, #ffed4e 0%, #fffacd 50%, #ffd700 100%);
+        }
+
+        .launch-btn:active {
+            transform: scale(0.95) translateY(1px);
+            box-shadow: 
+                0 0 15px rgba(255, 215, 0, 0.5),
+                0 4px 12px rgba(0, 0, 0, 0.3),
+                inset 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .launch-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* ============================================
+           ANIMATION CLASSES
+           ============================================ */
+        /* Curtain opening animation */
+        .curtain-left.open {
+            animation: curtainLeftOpen 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        .curtain-right.open {
+            animation: curtainRightOpen 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes curtainLeftOpen {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-110%);
+            }
+        }
+
+        @keyframes curtainRightOpen {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(110%);
+            }
+        }
+
+        /* ============================================
+           RESPONSIVE DESIGN
+           ============================================ */
+        @media (max-width: 768px) {
+            .title {
+                margin-bottom: 0.8rem;
+            }
+
+            .subtitle {
+                margin-bottom: 2rem;
+            }
+
+            .launch-btn {
+                padding: 0.8rem 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                margin-bottom: 0.6rem;
+            }
+
+            .subtitle {
+                margin-bottom: 1.5rem;
+            }
+
+            .launch-btn {
+                padding: 0.7rem 1.8rem;
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stage-container">
+        <div class="curtain-wrapper">
+            <!-- Left Curtain -->
+            <div class="curtain curtain-left">
+                <div class="curtain-trim"></div>
+                <div class="curtain-bottom-trim"></div>
+            </div>
+
+            <!-- Center Content -->
+            <div class="content">
+                <h1 class="title">Website Launch of ACM NSSCE!</h1>
+                <p class="subtitle">Click to Launch the Site</p>
+                <button class="launch-btn" id="launchBtn">Launch Now!</button>
+            </div>
+
+            <!-- Right Curtain -->
+            <div class="curtain curtain-right">
+                <div class="curtain-trim"></div>
+                <div class="curtain-bottom-trim"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Canvas for confetti (added dynamically by the library) -->
+
+    <!-- Load Confetti Library from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        // ============================================
+        // CONFIGURATION
+        // ============================================
+        // CUSTOMIZE THESE VALUES:
+        
+        // Redirect URL - Change this to your main site URL
+        const REDIRECT_URL = 'https://nssce.acm.org';
+        
+        // Curtain animation duration (milliseconds)
+        const CURTAIN_ANIMATION_DURATION = 1500;
+        
+        // Delay before confetti starts after curtain opens (milliseconds)
+        const CONFETTI_START_DELAY = 100;
+        
+        // Confetti duration (milliseconds)
+        const CONFETTI_DURATION = 2500;
+        
+        // Total delay before redirect (milliseconds)
+        const REDIRECT_DELAY = 3500;
+        
+        // Confetti colors - Customize to match your theme
+        const CONFETTI_COLORS = ['#c41e3a', '#ffd700', '#ffed4e', '#d4af37', '#fff'];
+        
+        // Confetti particle count
+        const CONFETTI_PARTICLE_COUNT = 200;
+        
+        // Confetti spread angle
+        const CONFETTI_SPREAD = 70;
+
+        // ============================================
+        // STATE MANAGEMENT
+        // ============================================
+        let isAnimating = false;
+        let confettiActive = false;
+
+        // ============================================
+        // DOM ELEMENTS
+        // ============================================
+        const launchBtn = document.getElementById('launchBtn');
+        const curtainLeft = document.querySelector('.curtain-left');
+        const curtainRight = document.querySelector('.curtain-right');
+        const content = document.querySelector('.content');
+
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+        launchBtn.addEventListener('click', () => {
+            if (!isAnimating) {
+                startCurtainRaiser();
+            }
+        });
+
+        // Allow keyboard trigger with Enter key for accessibility
+        launchBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !isAnimating) {
+                startCurtainRaiser();
+            }
+        });
+
+        // ============================================
+        // MAIN ANIMATION SEQUENCE
+        // ============================================
+        function startCurtainRaiser() {
+            isAnimating = true;
+            launchBtn.disabled = true;
+
+            // Step 1: Fade out content and open curtains
+            content.classList.add('hidden');
+            curtainLeft.classList.add('open');
+            curtainRight.classList.add('open');
+
+            // Step 2: Trigger confetti after curtains start opening
+            setTimeout(() => {
+                triggerConfetti();
+            }, CONFETTI_START_DELAY);
+
+            // Step 3: Redirect to main site after all animations complete
+            setTimeout(() => {
+                window.location.href = REDIRECT_URL;
+            }, REDIRECT_DELAY);
+        }
+
+        // ============================================
+        // CONFETTI EXPLOSION EFFECT
+        // ============================================
+        function triggerConfetti() {
+            if (confettiActive) return;
+            confettiActive = true;
+
+            // Multiple confetti bursts for a more impressive explosion
+            const burstCount = 3;
+            const burstInterval = 300;
+
+            for (let i = 0; i < burstCount; i++) {
+                setTimeout(() => {
+                    createConfettiBurst();
+                }, i * burstInterval);
+            }
+        }
+
+        function createConfettiBurst() {
+            // Main burst from center
+            confetti({
+                particleCount: CONFETTI_PARTICLE_COUNT,
+                spread: CONFETTI_SPREAD,
+                origin: { x: 0.5, y: 0.5 },
+                colors: CONFETTI_COLORS,
+                gravity: 0.8,
+                scalar: 1,
+                drift: 0,
+                shapes: ['square', 'circle'],
+                zIndex: 100,
+            });
+
+            // Optional: Smaller burst from left side for extra effect
+            confetti({
+                particleCount: Math.floor(CONFETTI_PARTICLE_COUNT * 0.4),
+                spread: CONFETTI_SPREAD * 0.8,
+                origin: { x: 0.2, y: 0.3 },
+                colors: CONFETTI_COLORS,
+                gravity: 0.9,
+                scalar: 0.8,
+                zIndex: 100,
+            });
+
+            // Optional: Smaller burst from right side
+            confetti({
+                particleCount: Math.floor(CONFETTI_PARTICLE_COUNT * 0.4),
+                spread: CONFETTI_SPREAD * 0.8,
+                origin: { x: 0.8, y: 0.3 },
+                colors: CONFETTI_COLORS,
+                gravity: 0.9,
+                scalar: 0.8,
+                zIndex: 100,
+            });
+        }
+
+        // ============================================
+        // OPTIONAL: SESSION STORAGE FOR ONE-TIME SHOW
+        // ============================================
+        // Uncomment the code below if you want to show the curtain
+        // only once per session (not shown on reload).
+        // Default behavior is to always show the animation.
+
+        /*
+        const ANIMATION_SHOWN_KEY = 'curtainRaiserShown';
+
+        window.addEventListener('load', () => {
+            const hasShown = sessionStorage.getItem(ANIMATION_SHOWN_KEY);
+            if (hasShown) {
+                // Skip animation and redirect immediately
+                window.location.href = REDIRECT_URL;
+            } else {
+                // Mark animation as shown for this session
+                sessionStorage.setItem(ANIMATION_SHOWN_KEY, 'true');
+            }
+        });
+        */
+
+        // ============================================
+        // ACCESSIBILITY
+        // ============================================
+        // Reduce motion preference support
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (prefersReducedMotion) {
+            // Still perform actions but with reduced visual complexity
+            // This is handled gracefully by the browser
+        }
+    </script>
+</body>
+</html>
